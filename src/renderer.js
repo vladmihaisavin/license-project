@@ -19,12 +19,14 @@ $(document).ready(() => {
     document.getElementById('start-button').addEventListener('click', () => {
         document.getElementById('stop-button').classList.remove('hidden');
         document.getElementById('start-button').classList.add('hidden');
+        document.getElementById('start-key-button').setAttribute('disabled', 'disabled');
         startAppEvent();
     });
 
     document.getElementById('stop-button').addEventListener('click', () => {
         document.getElementById('start-button').classList.remove('hidden');
         document.getElementById('stop-button').classList.add('hidden');
+        document.getElementById('start-key-button').removeAttribute('disabled');
         stopAppEvent();
     });
 
