@@ -145,7 +145,7 @@ const addPrecisionListener = (project, mainWindow) => {
     });
 
     const handleDirectionHand = (hand) => {
-        console.log(hand);
+        console.log(hand.hands, hand.handsMap);
     };
 };
 
@@ -254,6 +254,9 @@ const initiateCollisionDetection = (project) => {
         console.log("  timeStamp:", data.timeStamp);
         handbrake(project.ollie);
     });
+
+    //TODO: if mai mult de 2 secunde -> aceeasi pozitie -> event (blocat) -> go inapoi
+
 };
 
 /** Ollie goes to sleep if nothing happens for 60 seconds */
@@ -286,6 +289,7 @@ const startBatteryMonitor = (project, interval, mainWindow) => {
 };
 
 /** What should happen if BLE response is lost? */
+//TODO BLE lost
 
 module.exports = {
     startWithLeap,

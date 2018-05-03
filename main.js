@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const sphero = require("sphero");
 let mainWindow;
 
 const program = require("./src/program");
@@ -19,14 +20,12 @@ function createMainWindow() {
     mainWindow.openDevTools({
         mode: 'bottom'
     });
+
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
     });
-    // Emitted when the window is closed.
+
     mainWindow.on('closed', function () {
-        // Dereference the window object, usually you would store windows
-        // in an array if your app supports multi windows, this is the time
-        // when you should delete the corresponding element.
         mainWindow = null
     });
     require('./menu/mainmenu');
@@ -66,9 +65,9 @@ function renderMainWindow() {
         });
     });
 
-    //TODO: test
-    ipcMain.on('change-safety-setting', (event, props) => {
-        project.safety.actionTimeout = props.actionTimeout;
+    ipcMain.on('change-settings', (event, props) => {
+        project.safety.actionTimeout = props.safetyActionTimeout;
+        project.ollie = new sphero(props.deviceId);
     });
 
     ipcMain.on('change-drive-mode', (event, props) => {
@@ -76,18 +75,13 @@ function renderMainWindow() {
     });
 }
 
-// Quit when all windows are closed.
 app.on('window-all-closed', function () {
-    // On OS X it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
 
 app.on('activate', function () {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) {
         renderMainWindow();
     }

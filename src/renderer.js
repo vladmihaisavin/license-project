@@ -16,8 +16,8 @@ $(document).ready(() => {
         ipcRenderer.send('stop-app', {});
     }
 
-    function changeSafetySetting(value) {
-        ipcRenderer.send('change-safety-setting', {actionTimeout: value});
+    function changeSettings(settings) {
+        ipcRenderer.send('change-settings', settings);
     }
 
     function selectDriveMode(value) {
@@ -55,13 +55,6 @@ $(document).ready(() => {
     });
 
     /** Settings window */
-    //TODO: interface for safety select
-    // document.getElementById('safety-select').addEventListener('select', () => {
-    //     document.getElementById('stop-button').classList.remove('hidden');
-    //     document.getElementById('start-button').classList.add('hidden');
-    //     document.getElementById('start-key-button').setAttribute('disabled', 'disabled');
-    //     startAppEvent("leap");
-    // });
     let modes = document.getElementsByClassName('mode-select');
     for(let mode of modes)
     {
@@ -70,6 +63,37 @@ $(document).ready(() => {
             console.log(mode.getAttribute('data-mode'));
         });
     }
+
+    document.getElementById('save-changes').addEventListener('click', () => {
+
+        let saveChangesButton = document.getElementById('save-changes');
+        let deviceIdInput = document.getElementById('device-id');
+        let safetyTimeoutSelect = document.getElementById('safety-timeout');
+        let iconClasses = saveChangesButton.classList;
+
+        //Make settings editable
+        if(iconClasses.contains('fa-lock')) {
+            iconClasses.remove('fa-lock');
+            iconClasses.add('fa-unlock');
+            saveChangesButton.setAttribute('title', 'Blochează pentru a salva modificările.');
+            deviceIdInput.removeAttribute('disabled');
+            safetyTimeoutSelect.removeAttribute('disabled');
+        } else {
+            //Save settings
+
+            let settings = {};
+            settings.safetyActionTimeout = safetyTimeoutSelect.value;
+            settings.deviceId = deviceIdInput.value;
+
+            changeSettings(settings);
+
+            iconClasses.remove('fa-unlock');
+            iconClasses.add('fa-lock');
+            saveChangesButton.setAttribute('title', 'Deblochează pentru a face modificări.');
+            deviceIdInput.setAttribute('disabled', 'disabled');
+            safetyTimeoutSelect.setAttribute('disabled', 'disabled');
+        }
+    });
 
     ipcRenderer.on('ollie-status', (event, props) => {
 

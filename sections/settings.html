@@ -1,6 +1,7 @@
 <template class="section-template">
 <section id="settings" class="wrapper style2-alt">
   <div class="inner">
+
     <h2>Selectați un mod de condus</h2>
     <p>Modurile de condus definesc ce funcții vor fi folosite pentru a controla roboțelul Ollie.</p>
     <div class="features">
@@ -15,6 +16,22 @@
         <p>Acest mod este folosit pentru viteze medii spre reduse, cu timp de răspuns mai mare, dar și flexibilitate mai mare.</p>
       </section>
     </div>
+
+    <h2>Selectați dispozitivul Ollie</h2>
+    <p class="margin-0">Introduceți UUID-ul sau Adresa acestuia, în funcție de sistemul de operare.</p>
+    <input type="text" value="ecbb7770577b43499810647044dd378a" id="device-id" title="UUID / Adresă" class="margin-bottom__2em" disabled>
+
+    <h2>Selectați timeout siguranță</h2>
+    <p class="margin-0">Selectați un număr de secunde după care comenzile trimise către roboțel vor fi finalizate.</p>
+    <select id="safety-timeout" title="Timeout siguranță" disabled>
+      <option value="1">1 secundă</option>
+      <option value="2" selected>2 secunde</option>
+      <option value="3">3 secunde</option>
+      <option value="4">4 secunde</option>
+    </select>
+
+    <hr>
+    <span class="icon major fa-lock" id="save-changes" title="Deblochează pentru a face modificări"></span>
   </div>
 </section>
 </template>
