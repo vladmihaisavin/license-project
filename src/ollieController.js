@@ -1,6 +1,9 @@
-const keypress = require("keypress");
+const keypress = require('keypress');
+const lights = require('./lightsController');
 
 const startWithLeap = (project, mainWindow) => {
+
+    lights.setLight(project.ollie, 'green');
 
     project.controller.on('connect', function() {
         console.log('connected to leap motion');
@@ -39,23 +42,17 @@ const addCircuitListener = (project, mainWindow) => {
 
         if(frame.hands.length === 2) {
 
-            if(frame.hands[0].grabStrength > 0.95) {
-                shutDownOllie(project.ollie);
+            if(frame.hands[0].grabStrength > 0.9) {
+                shutDownOllie(project);
             }
 
             if(frame.gestures.length) {
 
-                // console.log("Gestures no: " + frame.gestures.length);
-                // console.log("Gestures: " + frame.gestures);
-                // console.log("Hands no: " + frame.hands.length);
-                // console.log("Hands: " + frame.hands);
-                // if(n % 100 === 0)
-                // {
                 mainWindow.webContents.send('leap-data', {
                     gestureNo: frame.gestures.length,
                     handNo: frame.hands.length,
                 });
-                // }
+
                 let gesture = frame.gestures[0];
 
                 if (gesture.type === 'swipe' && gesture.state ==='stop') {
@@ -98,11 +95,10 @@ const addCircuitListener = (project, mainWindow) => {
 
         switch (direction) {
             case 'UP':
-                //shutDownOllie(project.ollie);
-                calibrateOrb(project.ollie);
+                calibrateOrb(project);
                 return;
             case 'DOWN':
-                handbrake(project.ollie);
+                handbrake(project.ollie, project.speed);
                 return;
             case 'FORWARD':
             case 'RIGHT':
@@ -121,7 +117,7 @@ const addCircuitListener = (project, mainWindow) => {
         project.ollie.roll(project.speed, direction);
 
         setTimeout(() => {
-            handbrake(project.ollie);
+            handbrake(project.ollie, project.speed);
         }, project.safety.actionTimeout);
 
         mainWindow.webContents.send('ollie-data', { direction: direction, speed: project.speed});
@@ -136,8 +132,8 @@ const addPrecisionListener = (project, mainWindow) => {
         frameNo++;
         if(frame.hands.length === 2) {
 
-            if(frame.hands[0].grabStrength > 0.95) {
-                shutDownOllie(project.ollie);
+            if(frame.hands[0].grabStrength > 0.9) {
+                shutDownOllie(project);
             }
 
             handleDirectionHand(frame.hands[1]);
@@ -145,20 +141,22 @@ const addPrecisionListener = (project, mainWindow) => {
     });
 
     const handleDirectionHand = (hand) => {
-        console.log(hand.hands, hand.handsMap);
+        console.log(require('util').inspect(hand.palmPosition, false, null))
     };
 };
 
 const startWithKeyboard = (project) => {
+
+    lights.setLight(project.ollie, 'green');
     let direction = 0;
     keypress(process.stdin);
     process.stdin.on('keypress', (ch, key) => {
         console.log('got "keypress"', key);
         if (key.ctrl && key.name === 'c') {
-            shutDownOllie(project.ollie);
+            shutDownOllie(project);
         }
         if(key.ctrl && key.name === "a") {
-            calibrateOrb(project.ollie);
+            calibrateOrb(project);
             return;
         }
         let speed = 150;
@@ -176,7 +174,7 @@ const startWithKeyboard = (project) => {
                 direction = 180;
                 break;
             default:
-                handbrake(project.ollie);
+                handbrake(project.ollie, speed);
                 return;
         }
         project.ollie.roll(speed, direction);
@@ -186,17 +184,31 @@ const startWithKeyboard = (project) => {
     });
 };
 
-const handbrake = (ollie) => {
+const handbrake = (ollie, speed) => {
     ollie.setRawMotors({
         lmode: 0x03,
-        lpower: 0,
+        lpower: 255,
         rmode: 0x03,
-        rpower: 0
+        rpower: 255
     }, () => {
         console.log("break");
         setTimeout(() => {
+            shortReverse(ollie, speed / 2);
+        }, 1000);
+    });
+};
+
+const shortReverse = (ollie, speed) => {
+    ollie.setRawMotors({
+        lmode: 0x02,
+        lpower: speed,
+        rmode: 0x02,
+        rpower: speed
+    }, () => {
+        console.log("short reverse");
+        setTimeout(() => {
             stopEngines(ollie);
-        }, 2000);
+        }, 250);
     });
 };
 
@@ -211,17 +223,20 @@ const stopEngines = (ollie) => {
     });
 };
 
-const calibrateOrb = (ollie) => {
-    handbrake(ollie);
-    ollie.startCalibration();
+const calibrateOrb = (project) => {
+    lights.partyLights(project.ollie);
+    handbrake(project.ollie, project.speed);
+    project.ollie.startCalibration();
+
     setTimeout(() => {
-        ollie.finishCalibration();
+        project.ollie.finishCalibration();
+        lights.setLight(project.ollie, 'green');
     }, 5000);
 };
 
-const shutDownOllie = (ollie) => {
-    handbrake(ollie);
-    ollie.disconnect(() => {
+const shutDownOllie = (project) => {
+    handbrake(project.ollie, project.speed);
+    project.ollie.disconnect(() => {
         process.exit(0);
     });
 };

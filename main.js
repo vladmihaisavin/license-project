@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const sphero = require("sphero");
+const sphero = require('sphero');
 let mainWindow;
 
 const program = require("./src/program");
