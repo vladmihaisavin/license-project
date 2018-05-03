@@ -6,7 +6,6 @@ const program = require("./src/program");
 const project = new program({});
 
 const ollieController = require('./src/ollieController');
-const keyListener = new window.keypress.Listener();
 
 function createMainWindow() {
     mainWindow = new BrowserWindow({
@@ -53,48 +52,27 @@ function renderMainWindow() {
         project.ollie.connect(function () {
             mainWindow.webContents.send('ollie-status', { color: "green", status: "Connected" });
 
-            //project.ollie.detectCollisions();
+            if(props.device === "leap")
+            {
+                ollieController.startWithLeap(project, mainWindow);
+            } else {
+                ollieController.startWithKeyboard(project);
+            }
 
-            ollieController.startWithKeyboard(project, keyListener);
-            //ollieController.startWithLeap(project, mainWindow);
+            ollieController.initiateCollisionDetection(project);
+            ollieController.setInactivityTimeout(project, 60);
+            ollieController.startBatteryMonitor(project, 10000, mainWindow);
 
-            // /** On collision, ollie should shut down */
-            // project.ollie.on("collision", function(data) {
-            //     console.log("I crashed like this:");
-            //     console.log("  x:", data.x);
-            //     console.log("  y:", data.y);
-            //     console.log("  z:", data.z);
-            //     console.log("  axis:", data.axis);
-            //     console.log("  xMagnitud:", data.xMagnitud);
-            //     console.log("  yMagnitud:", data.yMagnitud);
-            //     console.log("  speed:", data.timeStamp);
-            //     console.log("  timeStamp:", data.timeStamp);
-            //     handbrake(project.ollie);
-            // });
-            //
-            // /** Ollie goes to sleep if nothing happens for 60 seconds */
-            // project.ollie.setInactivityTimeout(60, function(err, data) {
-            //     console.log(err || "data: " + data);
-            // });
-
-            /** Should warn user and power off ollie if low battery */
-            // setInterval(function() {
-            //     ollie.getPowerState(function(err, data) {
-            //         if (err) {
-            //             console.log("error: ", err);
-            //         } else {
-            //             console.log("data:");
-            //             console.log("  recVer:", data.recVer);
-            //             console.log("  batteryState:", data.batteryState);
-            //             console.log("  batteryVoltage:", data.batteryVoltage);
-            //             console.log("  chargeCount:", data.chargeCount);
-            //             console.log("  secondsSinceCharge:", data.secondsSinceCharge);
-            //         }
-            //     });
-            // }, 2000);
-
-            /** What should happen if BLE response is lost? */
         });
+    });
+
+    //TODO: test
+    ipcMain.on('change-safety-setting', (event, props) => {
+        project.safety.actionTimeout = props.actionTimeout;
+    });
+
+    ipcMain.on('change-drive-mode', (event, props) => {
+        project.driveMode = props.driveMode;
     });
 }
 

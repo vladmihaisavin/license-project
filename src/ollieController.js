@@ -21,9 +21,22 @@ const startWithLeap = (project, mainWindow) => {
     project.controller.on('deviceDisconnected', function() {
         console.log('device disconnected');
     });
-    // let n =0;
+
+    if(project.driveMode === 'circuit')
+    {
+        addCircuitListener(project, mainWindow);
+    } else if(project.driveMode === 'precision') {
+        addPrecisionListener(project, mainWindow);
+    }
+
+    project.controller.connect();
+    console.log('waiting for Leap Motion connection...');
+};
+
+const addCircuitListener = (project, mainWindow) => {
+
     project.controller.on('frame', function(frame) {
-        // n++;
+
         if(frame.hands.length === 2) {
 
             if(frame.hands[0].grabStrength > 0.95) {
@@ -106,13 +119,34 @@ const startWithLeap = (project, mainWindow) => {
         project.speed = getSpeed(leftHand);
 
         project.ollie.roll(project.speed, direction);
+
         setTimeout(() => {
             handbrake(project.ollie);
         }, project.safety.actionTimeout);
+
         mainWindow.webContents.send('ollie-data', { direction: direction, speed: project.speed});
     };
-    project.controller.connect();
-    console.log('waiting for Leap Motion connection...');
+};
+
+const addPrecisionListener = (project, mainWindow) => {
+
+    let frameNo = 0;
+    project.controller.on('frame', function(frame) {
+
+        frameNo++;
+        if(frame.hands.length === 2) {
+
+            if(frame.hands[0].grabStrength > 0.95) {
+                shutDownOllie(project.ollie);
+            }
+
+            handleDirectionHand(frame.hands[1]);
+        }
+    });
+
+    const handleDirectionHand = (hand) => {
+        console.log(hand);
+    };
 };
 
 const startWithKeyboard = (project) => {
@@ -162,7 +196,7 @@ const handbrake = (ollie) => {
         console.log("break");
         setTimeout(() => {
             stopEngines(ollie);
-        }, 500);
+        }, 2000);
     });
 };
 
@@ -204,7 +238,59 @@ const getSpeed = (leftHand) => {
     }
 };
 
+/** On collision, ollie should shut down */
+const initiateCollisionDetection = (project) => {
+
+    project.ollie.detectCollisions();
+    project.ollie.on("collision", function(data) {
+        console.log("I crashed like this:");
+        console.log("  x:", data.x);
+        console.log("  y:", data.y);
+        console.log("  z:", data.z);
+        console.log("  axis:", data.axis);
+        console.log("  xMagnitud:", data.xMagnitud);
+        console.log("  yMagnitud:", data.yMagnitud);
+        console.log("  speed:", data.timeStamp);
+        console.log("  timeStamp:", data.timeStamp);
+        handbrake(project.ollie);
+    });
+};
+
+/** Ollie goes to sleep if nothing happens for 60 seconds */
+const setInactivityTimeout = (project, timeout) => {
+
+    project.ollie.setInactivityTimeout(timeout, function(err, data) {
+        console.log(err || "data: " + data);
+    });
+};
+
+/** Should warn user if ollie has low battery */
+const startBatteryMonitor = (project, interval, mainWindow) => {
+    setInterval(function() {
+        project.ollie.getPowerState(function(err, data) {
+            if (err) {
+                console.log("error: ", err);
+            } else {
+                console.log("data:");
+                console.log("  recVer:", data.recVer);
+                console.log("  batteryState:", data.batteryState);
+                console.log("  batteryVoltage:", data.batteryVoltage);
+                console.log("  chargeCount:", data.chargeCount);
+                console.log("  secondsSinceCharge:", data.secondsSinceCharge);
+            }
+            if(data !== undefined && data.batteryState !== "Battery OK"){
+                mainWindow.webContents.send('ollie-status', { color: "yellow", status: "Connected - Low battery" });
+            }
+        });
+    }, interval);
+};
+
+/** What should happen if BLE response is lost? */
+
 module.exports = {
     startWithLeap,
-    startWithKeyboard
+    startWithKeyboard,
+    initiateCollisionDetection,
+    setInactivityTimeout,
+    startBatteryMonitor
 };

@@ -15,6 +15,7 @@ class Program {
         this.safety = {
             actionTimeout: 2000
         };
+        this.driveMode = 'circuit';
     }
 }
 
