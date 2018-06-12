@@ -90,13 +90,20 @@ function renderMainWindow() {
         project.driveMode = props.driveMode;
     });
 
-
+    let discoverDevicesCommand;
     ipcMain.on('open-device-discovery-window', (event, props)=> {
         deviceDiscoveryWindow.show();
+        const spawn = require('child_process').spawn;
+        discoverDevicesCommand = spawn('node', ['src/deviceDiscovery.js']);
+
+        discoverDevicesCommand.stdout.on('data', function (data) {
+            deviceDiscoveryWindow.webContents.send("device-discovery-data", {content: data.toString()});
+        });
     });
 
     ipcMain.on('close-device-discovery-window', (event, props)=> {
         deviceDiscoveryWindow.hide();
+        discoverDevicesCommand.kill();
     });
 }
 
