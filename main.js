@@ -1,14 +1,14 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const sphero = require('sphero');
-let mainWindow;
+let mainWindow, deviceDiscoveryWindow;
 
 const program = require("./src/program");
 const project = new program({});
 
 const ollieController = require('./src/ollieController');
 
-function createMainWindow() {
+function createWindows() {
     mainWindow = new BrowserWindow({
         width: 1300,
         height: 800,
@@ -16,7 +16,7 @@ function createMainWindow() {
         show: false
     });
 
-    mainWindow.loadURL('file://' + path.join(__dirname, 'index.html'));
+    mainWindow.loadURL('file://' + path.join(__dirname, '/index.html'));
     mainWindow.openDevTools({
         mode: 'bottom'
     });
@@ -28,12 +28,28 @@ function createMainWindow() {
     mainWindow.on('closed', function () {
         mainWindow = null
     });
+
+    deviceDiscoveryWindow = new BrowserWindow({frame: false,
+        width: 800,
+        height: 600,
+        minWidth: 800,
+        minHeight: 600,
+        show: false,
+        parent: mainWindow
+    });
+
+    deviceDiscoveryWindow.loadURL('file://'  + path.join(__dirname, '/windows/device-discovery.html'));
+
+    deviceDiscoveryWindow.openDevTools({
+        mode: 'bottom'
+    });
+
     require('./menu/mainmenu');
 }
 
 function renderMainWindow() {
 
-    createMainWindow();
+    createWindows();
 
     ipcMain.on('stop-app', (event, props) => {
         if(project.ollie && project.controller)
@@ -72,6 +88,15 @@ function renderMainWindow() {
 
     ipcMain.on('change-drive-mode', (event, props) => {
         project.driveMode = props.driveMode;
+    });
+
+
+    ipcMain.on('open-device-discovery-window', (event, props)=> {
+        deviceDiscoveryWindow.show();
+    });
+
+    ipcMain.on('close-device-discovery-window', (event, props)=> {
+        deviceDiscoveryWindow.hide();
     });
 }
 

@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Proiect de licență</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="../assets/css/main.css" />
+        <link rel="stylesheet" href="../assets/css/customStyle.css" />
+    </head>
+    <body>
+        <!-- Wrapper -->
+        <div>
+            <section id="welcome" class="wrapper style1">
+                <div class="inner">
+                    <h2>Dispozitive Bluetooth din apropiere</h2>
+                    <div class="min-height-150">
+                        <p id="device-name"></p>
+                        <p id="device-uuid"></p>
+                        <p id="device-address"></p>
+                        <p id="tx-level"></p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer id="footer" class="wrapper style1-alt bot-0">
+            <div class="inner">
+                <ul class="actions">
+                    <li><a href="#" id="close-device-discovery" class="button scrolly">Închide</a></li>
+                </ul>
+            </div>
+        </footer>
+    </body>
+    <script>window.$ = window.jQuery = require('../assets/js/jquery.min.js');</script>
+    <script src="../src/deviceDiscoveryRenderer.js"></script>
+</html>

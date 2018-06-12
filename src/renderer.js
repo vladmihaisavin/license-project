@@ -24,6 +24,15 @@ $(document).ready(() => {
         ipcRenderer.send('change-drive-mode', {driveMode: value});
     }
 
+    function openDeviceDiscovery() {
+        ipcRenderer.send('open-device-discovery-window', {});
+    }
+
+    /** Device discovery */
+    document.getElementById('device-discovery').addEventListener('click', () => {
+        openDeviceDiscovery();
+    });
+
     /** Run window */
 
     document.getElementById('start-button').addEventListener('click', () => {
@@ -53,6 +62,29 @@ $(document).ready(() => {
         document.getElementById('start-button').removeAttribute('disabled');
         stopAppEvent();
     });
+
+    ipcRenderer.on('ollie-status', (event, props) => {
+
+        ollieStatus.innerHTML = props.status;
+        ollieStatus.className = props.color;
+    });
+
+    ipcRenderer.on('ollie-data', (event, props) => {
+        document.getElementById('ollie-data').innerHTML = "Direcție: " + props.direction + "<br>Viteză: " + props.speed;
+    });
+
+    ipcRenderer.on('leap-data', (event, props) => {
+        leapData = props;
+    });
+
+    setInterval(function() {
+        if(leapData === null) {
+            return;
+        }
+        document.getElementById('ollie-data').innerHTML =
+            "Număr de gesturi: " + leapData.gestureNo + "<br>" +
+            "Număr de mâini: " + leapData.handNo + "<br>"
+    }, 500);
 
     /** Settings window */
     let modes = document.getElementsByClassName('mode-select');
@@ -94,27 +126,4 @@ $(document).ready(() => {
             safetyTimeoutSelect.setAttribute('disabled', 'disabled');
         }
     });
-
-    ipcRenderer.on('ollie-status', (event, props) => {
-
-        ollieStatus.innerHTML = props.status;
-        ollieStatus.className = props.color;
-    });
-
-    ipcRenderer.on('ollie-data', (event, props) => {
-        document.getElementById('ollie-data').innerHTML = "Direcție: " + props.direction + "<br>Viteză: " + props.speed;
-    });
-
-    ipcRenderer.on('leap-data', (event, props) => {
-        leapData = props;
-    });
-
-    setInterval(function() {
-        if(leapData === null) {
-            return;
-        }
-        document.getElementById('ollie-data').innerHTML =
-            "Număr de gesturi: " + leapData.gestureNo + "<br>" +
-            "Număr de mâini: " + leapData.handNo + "<br>"
-    }, 500);
 });
