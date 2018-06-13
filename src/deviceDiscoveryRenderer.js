@@ -1,4 +1,4 @@
-require('devtron').install();
+//require('devtron').install();
 const {ipcRenderer} = require('electron');
 
 $(document).ready(() => {

@@ -17,9 +17,9 @@ function createWindows() {
     });
 
     mainWindow.loadURL('file://' + path.join(__dirname, '/index.html'));
-    mainWindow.openDevTools({
-        mode: 'bottom'
-    });
+    // mainWindow.openDevTools({
+    //     mode: 'bottom'
+    // });
 
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
@@ -40,9 +40,9 @@ function createWindows() {
 
     deviceDiscoveryWindow.loadURL('file://'  + path.join(__dirname, '/windows/device-discovery.html'));
 
-    deviceDiscoveryWindow.openDevTools({
-        mode: 'bottom'
-    });
+    // deviceDiscoveryWindow.openDevTools({
+    //     mode: 'bottom'
+    // });
 
     require('./menu/mainmenu');
 }
