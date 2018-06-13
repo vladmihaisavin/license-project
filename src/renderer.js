@@ -81,18 +81,46 @@ $(document).ready(() => {
         if(leapData === null) {
             return;
         }
-        document.getElementById('ollie-data').innerHTML =
-            "Număr de gesturi: " + leapData.gestureNo + "<br>" +
-            "Număr de mâini: " + leapData.handNo + "<br>"
+        let leapDataHtml = document.getElementById('leap-data');
+
+        leapDataHtml.innerHTML = "";
+        if(leapData.gestureNo) {
+            leapDataHtml.innerHTML += "Număr de gesturi: " + leapData.gestureNo + "<br>";
+        }
+        if(leapData.handNo) {
+            leapDataHtml.innerHTML += "Număr de mâini: " + leapData.handNo + "<br>";
+        }
+        if(leapData.currentPalmPosition) {
+            leapDataHtml.innerHTML += "Poziția curentă a palmei de direcție: " + leapData.currentPalmPosition + "<br>";
+        }
+        if(leapData.referencePalmPosition) {
+            leapDataHtml.innerHTML += "Poziția de referință a palmei de direcție: " + leapData.referencePalmPosition + "<br>";
+        }
+
     }, 500);
 
     /** Settings window */
     let modes = document.getElementsByClassName('mode-select');
+    let circuitIcon = document.getElementById('circuit-mode-icon');
+    let precisionIcon = document.getElementById('precision-mode-icon');
+
     for(let mode of modes)
     {
         mode.addEventListener('click', () => {
-            selectDriveMode(mode.getAttribute('data-mode'));
-            console.log(mode.getAttribute('data-mode'));
+
+            let dataMode = mode.getAttribute('data-mode');
+            selectDriveMode(dataMode);
+            if(dataMode === "circuit") {
+                circuitIcon.classList.remove("red-bg");
+                circuitIcon.classList.add("green-bg");
+                precisionIcon.classList.add("red-bg");
+                precisionIcon.classList.remove("green-bg");
+            } else {
+                precisionIcon.classList.remove("red-bg");
+                precisionIcon.classList.add("green-bg");
+                circuitIcon.classList.add("red-bg");
+                circuitIcon.classList.remove("green-bg");
+            }
         });
     }
 

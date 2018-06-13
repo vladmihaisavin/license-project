@@ -12,6 +12,7 @@ class Program {
             'REVERSE': 180,
             'LEFT': 270,
         };
+        this.precisionPalmReference = undefined;
         this.safety = {
             actionTimeout: 2000
         };

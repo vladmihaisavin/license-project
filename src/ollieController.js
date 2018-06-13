@@ -127,6 +127,9 @@ const addCircuitListener = (project, mainWindow) => {
 const addPrecisionListener = (project, mainWindow) => {
 
     let frameNo = 0;
+    let referenceSetFlag = false;
+    let direction;
+
     project.controller.on('frame', function(frame) {
 
         frameNo++;
@@ -136,13 +139,36 @@ const addPrecisionListener = (project, mainWindow) => {
                 shutDownOllie(project);
             }
 
-            handleDirectionHand(frame.hands[1]);
+            if(!referenceSetFlag && palmRespectsBoudaries(frame.hands[1].palmPosition)) {
+                project.precisionPalmReference = frame.hands[1].palmPosition;
+                referenceSetFlag = true;
+            }
+
+            project.speed = getSpeed(frame.hands[0]) / 2;
+            if(frameNo % 10 === 0 && project.precisionPalmReference !== undefined) {
+                handleDirectionHand(frame.hands[1]);
+            }
+
+            mainWindow.webContents.send('leap-data', {
+                currentPalmPosition: frame.hands[1].palmPosition,
+                referencePalmPosition: project.precisionPalmReference,
+            });
         }
     });
 
     const handleDirectionHand = (hand) => {
-        console.log(require('util').inspect(hand.palmPosition, false, null))
+
+        direction = getDirection(hand.palmPosition, project.precisionPalmReference);
+        rawMove(project.ollie, direction, project.speed);
+
+        mainWindow.webContents.send('ollie-data', { direction: direction.name, speed: project.speed});
     };
+};
+
+const palmRespectsBoudaries = (palmPosition) => {
+  return palmPosition[0] > 40 && palmPosition[0] < 80
+      && palmPosition[1] > 130 && palmPosition[1] < 170
+      && palmPosition[2] > 20 && palmPosition[2] < 60;
 };
 
 const startWithKeyboard = (project) => {
@@ -223,6 +249,59 @@ const stopEngines = (ollie) => {
     });
 };
 
+const getDirection = (currentPalmPosition, referencePalmPosition) => {
+
+    /** If no boundary is crossed, that means that the robot will stop */
+    let command = {
+        name: "Frână",
+        lmode: 0x00,
+        rmode: 0x00
+    };
+
+    /** Initial position minus current position => how much the hand moved on a certain axis (X or Y)*/
+    let xDiff = referencePalmPosition[0] - currentPalmPosition[0];
+    let zDiff = referencePalmPosition[2] - currentPalmPosition[2];
+
+    if(xDiff > 20) {
+        command = {
+            name: "Stânga",
+            lmode: 0x02,
+            rmode: 0x01
+        };
+    } else if(xDiff < -20) {
+        command = {
+            name: "Dreapta",
+            lmode: 0x01,
+            rmode: 0x02
+        };
+    } else if(zDiff > 20) {
+        command = {
+            name: "Înainte",
+            lmode: 0x01,
+            rmode: 0x01
+        };
+    } else if(zDiff < -20) {
+        command = {
+            name: "Înapoi",
+            lmode: 0x02,
+            rmode: 0x02
+        };
+    }
+
+    return command;
+};
+
+const rawMove = (ollie, command, speed) => {
+    ollie.setRawMotors({
+        lmode: command.lmode,
+        lpower: speed,
+        rmode: command.rmode,
+        rpower: speed
+    }, () => {
+        console.log(command.name);
+    });
+};
+
 const calibrateOrb = (project) => {
     lights.partyLights(project.ollie);
     handbrake(project.ollie, project.speed);
@@ -278,7 +357,7 @@ const initiateCollisionDetection = (project) => {
 const setInactivityTimeout = (project, timeout) => {
 
     project.ollie.setInactivityTimeout(timeout, function(err, data) {
-        console.log(err || "data: " + data);
+        console.log(err || "data: " + require('util').inspect(data, false, null));
     });
 };
 
