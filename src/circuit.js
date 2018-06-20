@@ -1,4 +1,4 @@
-const core = require('coreFunctionality');
+const core = require('./coreFunctionality');
 const directions = {
     'FORWARD': 0,
     'RIGHT': 90,

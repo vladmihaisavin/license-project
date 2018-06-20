@@ -7,6 +7,7 @@ const program = require("./src/program");
 const project = new program({});
 
 const ollieController = require('./src/ollieController');
+const core = require('./src/coreFunctionality');
 
 function createWindows() {
     mainWindow = new BrowserWindow({
@@ -74,9 +75,9 @@ function renderMainWindow() {
                 ollieController.startWithKeyboard(project);
             }
 
-            ollieController.initiateCollisionDetection(project);
-            ollieController.setInactivityTimeout(project, 60);
-            ollieController.startBatteryMonitor(project, 10000, mainWindow);
+            core.initiateCollisionDetection(project);
+            core.setInactivityTimeout(project, 60);
+            core.startBatteryMonitor(project, 10000, mainWindow);
 
         });
     });

@@ -6,6 +6,8 @@ const directionLights = {
     "BRAKE": "red",
 };
 
+let intermittent = undefined;
+
 const partyLights = (ollie) => {
 
     setInterval(() => {
@@ -16,12 +18,15 @@ const partyLights = (ollie) => {
 const setLight = (ollie, color) => {
 
     ollie.color(color);
+    if(intermittent !== undefined) {
+        clearInterval(intermittent);
+    }
 };
 
 const setIntermittentLight = (ollie, color, interval) => {
     let flag = 0;
     const colors = ["black", color];
-    setInterval(() => {
+    intermittent = setInterval(() => {
         ollie.color(colors[flag % 2]);
         flag++;
     }, interval);

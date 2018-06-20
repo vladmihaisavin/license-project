@@ -12,7 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "devtron": "^1.4.0",
-    "electron": "^1.8.1"
+    "electron": "^1.8.7"
   },
   "dependencies": {
     "child_process": "^1.0.2",

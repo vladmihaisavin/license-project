@@ -1,5 +1,5 @@
-const core = require('coreFunctionality');
-const trans = require('trans');
+const core = require('./coreFunctionality');
+const trans = require('./trans');
 const lights = require('./lightsController');
 
 const addListener = (project, mainWindow) => {

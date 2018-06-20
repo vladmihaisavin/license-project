@@ -9,8 +9,19 @@ const handbrake = (ollie, speed) => {
     }, () => {
         console.log("break");
         setTimeout(() => {
-            shortReverse(ollie, speed / 2);
-        }, 1000);
+            stopEngines(ollie, speed / 2);
+        }, 2000);
+    });
+};
+
+const stopEngines = (ollie) => {
+    ollie.setRawMotors({
+        lmode: 0x00,
+        lpower: 0,
+        rmode: 0x00,
+        rpower: 0
+    }, () => {
+        console.log("engines stopped");
     });
 };
 
@@ -25,17 +36,6 @@ const shortReverse = (ollie, speed) => {
         setTimeout(() => {
             stopEngines(ollie);
         }, 250);
-    });
-};
-
-const stopEngines = (ollie) => {
-    ollie.setRawMotors({
-        lmode: 0x00,
-        lpower: 0,
-        rmode: 0x00,
-        rpower: 0
-    }, () => {
-        console.log("engines stopped");
     });
 };
 

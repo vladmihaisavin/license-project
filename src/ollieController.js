@@ -1,7 +1,7 @@
 const keypress = require('keypress');
-const circuit = require('circuit');
-const precision = require('precision');
-const core = require('coreFunctionality');
+const circuit = require('./circuit');
+const precision = require('./precision');
+const core = require('./coreFunctionality');
 const lights = require('./lightsController');
 
 const startWithLeap = (project, mainWindow) => {
