@@ -1,7 +1,6 @@
 //require('devtron').install();
 const {ipcRenderer} = require('electron');
 
-
 $(document).ready(() => {
 
     let leapData = null;

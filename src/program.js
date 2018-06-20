@@ -6,12 +6,6 @@ class Program {
         this.ollie = new sphero("ecbb7770577b43499810647044dd378a");
         this.controller = new leapjs.Controller({frameEventName:'deviceFrame', enableGestures:true});
         this.speed = 100;
-        this.directions = {
-            'FORWARD': 0,
-            'RIGHT': 90,
-            'REVERSE': 180,
-            'LEFT': 270,
-        };
         this.precisionPalmReference = undefined;
         this.safety = {
             actionTimeout: 2000
