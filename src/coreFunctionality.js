@@ -9,7 +9,7 @@ const handbrake = (ollie, speed) => {
     }, () => {
         console.log("break");
         setTimeout(() => {
-            stopEngines(ollie, speed / 2);
+            stopEngines(ollie);
         }, 2000);
     });
 };
