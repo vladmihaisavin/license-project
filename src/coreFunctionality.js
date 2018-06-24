@@ -1,6 +1,6 @@
 const lights = require('./lightsController');
 
-const handbrake = (ollie, speed) => {
+const handbrake = (ollie) => {
     ollie.setRawMotors({
         lmode: 0x03,
         lpower: 255,

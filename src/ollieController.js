@@ -21,10 +21,10 @@ const startWithLeap = (project, mainWindow) => {
     project.controller.on('ready', function() {
         console.log('ready');
     });
-    project.controller.on('deviceConnected', function() {
+    project.controller.on('streamingStarted', function() {
         console.log('device connected');
     });
-    project.controller.on('deviceDisconnected', function() {
+    project.controller.on('streamingStopped', function() {
         console.log('device disconnected');
     });
 
@@ -34,6 +34,10 @@ const startWithLeap = (project, mainWindow) => {
     } else if(project.driveMode === 'precision') {
         precision.addListener(project, mainWindow);
     }
+
+    project.ollie.stopOnDisconnect(function(err, data) {
+        console.log(err || "data" + data);
+    });
 
     project.controller.connect();
     console.log('waiting for Leap Motion connection...');
