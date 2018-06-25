@@ -4,13 +4,55 @@ const lights = require('./lightsController');
 
 const addListener = (project, mainWindow) => {
 
-    let frameNo = 0;
+    // project.ollie.getPermOptionFlags(function(err, data) {
+    //    if (err) {
+    //          console.log("error: ", err);
+    //        } else {
+    //          console.log("data:");
+    //          console.log("  sleepOnCharger:", data.sleepOnCharger);
+    //          console.log("  vectorDrive:", data.vectorDrive);
+    //          console.log("  selfLevelOnCharger:", data.selfLevelOnCharger);
+    //          console.log("  tailLedAlwaysOn:", data.tailLedAlwaysOn);
+    //          console.log("  motionTimeouts:", data.motionTimeouts);
+    //          console.log("  retailDemoOn:", data.retailDemoOn);
+    //          console.log("  awakeSensitivityLight:", data.awakeSensitivityLight);
+    //          console.log("  awakeSensitivityHeavy:", data.awakeSensitivityHeavy);
+    //          console.log("  gyroMaxAsyncMsg:", data.gyroMaxAsyncMsg);
+    //        }
+    //
+    //        project.ollie.setPermOptionFlags(274, (err) => {
+    //            if(err){
+    //                console.error(err);
+    //            }
+    //
+    //            project.ollie.getPermOptionFlags(function(err, data) {
+    //                if (err) {
+    //                    console.log("error: ", err);
+    //                } else {
+    //                    console.log(data);
+    //                    console.log(data.packet.data.toString());
+    //                    console.log("data:");
+    //                    console.log("  sleepOnCharger:", data.sleepOnCharger);
+    //                    console.log("  vectorDrive:", data.vectorDrive);
+    //                    console.log("  selfLevelOnCharger:", data.selfLevelOnCharger);
+    //                    console.log("  tailLedAlwaysOn:", data.tailLedAlwaysOn);
+    //                    console.log("  motionTimeouts:", data.motionTimeouts);
+    //                    console.log("  retailDemoOn:", data.retailDemoOn);
+    //                    console.log("  awakeSensitivityLight:", data.awakeSensitivityLight);
+    //                    console.log("  awakeSensitivityHeavy:", data.awakeSensitivityHeavy);
+    //                    console.log("  gyroMaxAsyncMsg:", data.gyroMaxAsyncMsg);
+    //                }
+    //            });
+    //        });
+    //  });
     let referenceSetFlag = false;
     let direction;
 
+    let start;
+    let timeout = 1000;
+
     project.controller.on('frame', function(frame) {
 
-        frameNo++;
         if(frame.hands.length === 2) {
 
             if(frame.hands[0].grabStrength > 0.9) {
@@ -23,16 +65,31 @@ const addListener = (project, mainWindow) => {
             }
 
             project.speed = core.getSpeed(frame.hands[0]) / 2;
-            if(frameNo % 10 === 0 && project.precisionPalmReference !== undefined) {
-                handleDirectionHand(frame.hands[1]);
+            if(project.precisionPalmReference !== undefined) {
+                if(!start){
+                    handleDirectionHand(frame.hands[1]);
+                    start = Date.now();
+                } else {
+                    let currentDate = Date.now();
+                    if(currentDate - start > timeout) {
+                        handleDirectionHand(frame.hands[1]);
+                        start = currentDate;
+                    }
+                }
             }
 
-            mainWindow.webContents.send('leap-data', {
-                currentPalmPosition: frame.hands[1].palmPosition,
-                referencePalmPosition: project.precisionPalmReference,
-            });
+            try {
+                mainWindow.webContents.send('leap-data', {
+                    currentPalmPosition: frame.hands[1].palmPosition,
+                    referencePalmPosition: project.precisionPalmReference,
+                });
+            } catch(error) {
+                console.error(error);
+            }
         }
     });
+
+    project.ollie.setMotionTimeout(timeout);
 
     const handleDirectionHand = (hand) => {
 
