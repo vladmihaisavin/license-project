@@ -3,48 +3,6 @@ const trans = require('./trans');
 const lights = require('./lightsController');
 
 const addListener = (project, mainWindow) => {
-
-    // project.ollie.getPermOptionFlags(function(err, data) {
-    //    if (err) {
-    //          console.log("error: ", err);
-    //        } else {
-    //          console.log("data:");
-    //          console.log("  sleepOnCharger:", data.sleepOnCharger);
-    //          console.log("  vectorDrive:", data.vectorDrive);
-    //          console.log("  selfLevelOnCharger:", data.selfLevelOnCharger);
-    //          console.log("  tailLedAlwaysOn:", data.tailLedAlwaysOn);
-    //          console.log("  motionTimeouts:", data.motionTimeouts);
-    //          console.log("  retailDemoOn:", data.retailDemoOn);
-    //          console.log("  awakeSensitivityLight:", data.awakeSensitivityLight);
-    //          console.log("  awakeSensitivityHeavy:", data.awakeSensitivityHeavy);
-    //          console.log("  gyroMaxAsyncMsg:", data.gyroMaxAsyncMsg);
-    //        }
-    //
-    //        project.ollie.setPermOptionFlags(274, (err) => {
-    //            if(err){
-    //                console.error(err);
-    //            }
-    //
-    //            project.ollie.getPermOptionFlags(function(err, data) {
-    //                if (err) {
-    //                    console.log("error: ", err);
-    //                } else {
-    //                    console.log(data);
-    //                    console.log(data.packet.data.toString());
-    //                    console.log("data:");
-    //                    console.log("  sleepOnCharger:", data.sleepOnCharger);
-    //                    console.log("  vectorDrive:", data.vectorDrive);
-    //                    console.log("  selfLevelOnCharger:", data.selfLevelOnCharger);
-    //                    console.log("  tailLedAlwaysOn:", data.tailLedAlwaysOn);
-    //                    console.log("  motionTimeouts:", data.motionTimeouts);
-    //                    console.log("  retailDemoOn:", data.retailDemoOn);
-    //                    console.log("  awakeSensitivityLight:", data.awakeSensitivityLight);
-    //                    console.log("  awakeSensitivityHeavy:", data.awakeSensitivityHeavy);
-    //                    console.log("  gyroMaxAsyncMsg:", data.gyroMaxAsyncMsg);
-    //                }
-    //            });
-    //        });
-    //  });
     let referenceSetFlag = false;
     let direction;
 
